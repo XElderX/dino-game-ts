@@ -1,8 +1,11 @@
+import { GameScene } from "../scenes/GameScene";
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  scene: GameScene;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "dino-idle");
+  constructor(scene: GameScene, x: number, y: number) {
+    super(scene, x, y, "dino-run");
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -12,6 +15,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   init() {
+    this.scene;
     this.cursors = this.scene.input.keyboard.createCursorKeys();
     this.setOrigin(0, 1)
       .setGravityY(5000)
@@ -28,9 +32,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(space);
 
     const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
-    console.log(onFloor);
+    // console.log(onFloor);
     if (isSpaceJustDown && onFloor) {
       this.setVelocityY(-1600);
+    }
+
+    if (!this.scene.isGameRunning ) {
+      console.log('game running');
+      return ;
+    }
+
+    console.log(this.body.deltaAbsY())
+    if (this.body.deltaAbsY() > 0) {
+      this.anims.stop();
+      this.setTexture("dino-run", 0)
+    } else {
+      this.playRunAnimation();
     }
   }
 

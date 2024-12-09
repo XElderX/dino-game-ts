@@ -2,19 +2,13 @@
 
 import { Player } from "../entities/Player";
 import { SpriteWithDynamicBody } from "../types";
+import { GameScene } from "./GameScene";
 
-class PlayScene extends Phaser.Scene {
+
+class PlayScene extends GameScene {
   player: Player;
   ground: Phaser.GameObjects.TileSprite;
   startTrigger: SpriteWithDynamicBody;
-
-  get gameHeight() {
-    return this.game.config.height as number;
-  }
-
-  get gameWidth() {
-    return this.game.config.width as number;
-  }
 
   constructor() {
     super("PlayScene");
@@ -32,24 +26,25 @@ class PlayScene extends Phaser.Scene {
     this.physics.add.overlap(this.startTrigger, this.player, () => {
       if (this.startTrigger.y === 10) {
         this.startTrigger.body.reset(0, this.gameHeight)
-        console.log("Triggering upper trigger");
+
         return; 
       }
       this.startTrigger.body.reset(9999, 9999);
-      console.log("Roll out the ground. start the game");
       
       const rollOutEvent = this.time.addEvent({
         delay: 1000 / 60,
         loop: true,
         callback: () => {
-        this.player.playRunAnimation();
-        this.player.setVelocityX(80);
-          this.ground.width += 17;   
-              if (this.ground.width >= this.gameWidth) {
-                rollOutEvent.remove();
-                this.ground.width = this.gameWidth;
-                this.player.setVelocityX(0);
-              }  
+          this.player.playRunAnimation();
+          this.player.setVelocityX(80);
+          this.ground.width += 17;
+            
+          if (this.ground.width >= this.gameWidth) {
+            rollOutEvent.remove();
+            this.ground.width = this.gameWidth;
+            this.player.setVelocityX(0);
+            this.isGameRunning = true;
+          }  
         }
       })
       // this.shouldStartRoll = true;
