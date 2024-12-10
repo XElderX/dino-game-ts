@@ -14,7 +14,7 @@ class PlayScene extends GameScene {
 
   spawnInterval: number = 1500;
   spawnTime: number = 0;
-  obstacleSpeed: number = 5;
+  gameSpeed: number = 5;
 
   constructor() {
     super("PlayScene");
@@ -67,16 +67,15 @@ class PlayScene extends GameScene {
       this.spawnObstacle();
       this.spawnTime = 0;
     }
-    Phaser.Actions.IncX(this.obstacles.getChildren(), -this.obstacleSpeed);
+    Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed);
 
     this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
       if (obstacle.getBounds().right < 0) {
         this.obstacles.remove(obstacle);
       }
     })
-    console.log(this.obstacles.getChildren().length);
+    this.ground.tilePositionX += this.gameSpeed
   }
-
 
   createPlayer() {
     this.player = new Player(this, 0, this.gameHeight);
