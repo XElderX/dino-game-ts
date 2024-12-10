@@ -68,6 +68,13 @@ class PlayScene extends GameScene {
       this.spawnTime = 0;
     }
     Phaser.Actions.IncX(this.obstacles.getChildren(), -this.obstacleSpeed);
+
+    this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
+      if (obstacle.getBounds().right < 0) {
+        this.obstacles.remove(obstacle);
+      }
+    })
+    console.log(this.obstacles.getChildren().length);
   }
 
 
