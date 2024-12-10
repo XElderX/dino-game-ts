@@ -11,6 +11,11 @@ class PlayScene extends GameScene {
   ground: Phaser.GameObjects.TileSprite;
   obstacles: Phaser.Physics.Arcade.Group;
   startTrigger: SpriteWithDynamicBody;
+  isGameRunning: boolean = false;
+
+  gameOverText: Phaser.GameObjects.Image;
+  restartText: Phaser.GameObjects.Image;
+  gameOverContainer: Phaser.GameObjects.Container;
 
   spawnInterval: number = 1500;
   spawnTime: number = 0;
@@ -26,10 +31,28 @@ class PlayScene extends GameScene {
 
     this.obstacles = this.physics.add.group();
 
-    this.startTrigger = this.physics.add
-      .sprite(0, 10, null)
-      .setAlpha(0)
-      .setOrigin(0, 1);
+    this.gameOverText = this.add.image(0, 0, "game-over");
+    this.restartText = this.add.image(0, 80, "restart");
+
+    this.gameOverContainer = this.add
+      .container(this.gameWidth / 2, (this.gameHeight / 2) - 50)
+      .add([this.gameOverText, this.restartText])
+      .setAlpha(0);
+
+    this.startTrigger = this.physics.add.sprite(0, 10, null)
+    .setAlpha(0)
+    .setOrigin(0, 1);
+
+    this.physics.add.collider(this.obstacles, this.player, () => {
+      this.isGameRunning = false;
+      this.physics.pause();
+
+      this.player.die();
+      this.gameOverContainer.setAlpha(1);
+
+      this.spawnTime = 0;
+      this.gameSpeed = 5;
+    });
 
     this.physics.add.overlap(this.startTrigger, this.player, () => {
       if (this.startTrigger.y === 10) {
@@ -37,7 +60,7 @@ class PlayScene extends GameScene {
 
         return; 
       }
-      this.startTrigger.body.reset(9999, 9999);
+    this.startTrigger.body.reset(9999, 9999);
       
       const rollOutEvent = this.time.addEvent({
         delay: 1000 / 60,
@@ -45,7 +68,7 @@ class PlayScene extends GameScene {
         callback: () => {
           this.player.playRunAnimation();
           this.player.setVelocityX(80);
-          this.ground.width += 17;
+          this.ground.width += (17 * 2);
             
           if (this.ground.width >= this.gameWidth) {
             rollOutEvent.remove();
@@ -60,21 +83,21 @@ class PlayScene extends GameScene {
   }
 
   update(time: number, delta: number): void {
-
+    if (!this.isGameRunning) { return; }
+    
   this.spawnTime += delta;
-    if (this.spawnTime > this.spawnInterval) {
-
+    if (this.spawnTime >= this.spawnInterval) {
       this.spawnObstacle();
       this.spawnTime = 0;
     }
-    Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed);
+    Phaser.Actions.IncX(this.obstacles.getChildren(), - this.gameSpeed);
 
     this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
       if (obstacle.getBounds().right < 0) {
         this.obstacles.remove(obstacle);
       }
     })
-    this.ground.tilePositionX += this.gameSpeed
+    this.ground.tilePositionX += this.gameSpeed;
   }
 
   createPlayer() {
@@ -92,8 +115,8 @@ class PlayScene extends GameScene {
 
     this.obstacles
     .create(distance, this.gameHeight, `obstacle-${obstacleNum}`)
-    .setOrigin(0,1);
-
+    .setOrigin(0,1)
+    .setImmovable();
   }
 }
 

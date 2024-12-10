@@ -36,8 +36,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(-1600);
     }
 
-    if (!this.scene.isGameRunning ) {
-      return ;
+    if (!this.scene.isGameRunning) {
+      return;
     }
 
     if (this.body.deltaAbsY() > 0) {
@@ -58,15 +58,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   //     });
   //   }
   playRunAnimation() {
-    this.play("dino-run-anim", true);
+    this.play("dino-run", true);
   }
 
   registerAnimations() {
     this.anims.create({
-      key: "dino-run-anim",
+      key: "dino-run",
       frames: this.anims.generateFrameNames("dino-run", {start: 2, end: 3}),
       frameRate: 10,
       repeat: -1
     });
+  }
+
+  die() {
+    this.anims.pause();
+    this.setTexture("dino-hurt");
   }
 }
